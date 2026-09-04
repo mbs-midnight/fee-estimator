@@ -1,0 +1,22 @@
+{
+  "name": "fee-estimator-3",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NIGHT holding estimator for DApps that sponsor their users' DUST fees, calibrated on measured Midnight transactions",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "presets": "node scripts/derive_presets.mjs",
+    "test": "node --test src/model.test.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.0",
+    "vite": "^8.0.0"
+  }
+}

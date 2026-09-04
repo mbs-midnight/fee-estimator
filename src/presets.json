@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-09-03T22:33:36.830Z",
+  "dims": [
+    "read_time",
+    "compute_time",
+    "block_usage",
+    "bytes_written",
+    "bytes_churned"
+  ],
+  "blockLimits": {
+    "read_time": 2000000000000,
+    "compute_time": 2000000000000,
+    "block_usage": 1000000,
+    "bytes_written": 50000,
+    "bytes_churned": 50000000
+  },
+  "feeFactors": {
+    "read": 0.5710097498159541,
+    "compute": 0.5710097498159541,
+    "block": 0.5739415011042756,
+    "write": 2.2840389992638164
+  },
+  "counts": {
+    "mainnet": 112,
+    "preview": 648,
+    "stagenet": 574
+  },
+  "presets": [
+    {
+      "id": "transfer_guaranteed",
+      "label": "Unshielded transfer (guaranteed segment)",
+      "group": "transfer",
+      "source": {
+        "net": "mainnet",
+        "height": 2424126,
+        "hash": "a93301c057965b99487a5f9d98c0bb36e406d62ae5ee91f39710921b9c48f46a",
+        "bytes": 3806,
+        "bytesWritten": 500,
+        "kind": "transfer",
+        "feeSpeck": "1"
+      },
+      "frac": {
+        "read_time": 0.0018275,
+        "compute_time": 0.002734690352,
+        "block_usage": 0.003739,
+        "bytes_written": 0.01,
+        "bytes_churned": 0.00047544000000000004
+      },
+      "note": "1 input, 2 outputs, one DUST spend. The shape the mainnet wallet builds."
+    },
+    {
+      "id": "transfer_fallible",
+      "label": "Unshielded transfer (fallible segment)",
+      "group": "transfer",
+      "source": {
+        "net": "stagenet",
+        "height": 298837,
+        "hash": "0330c772979857f133d925158aa0cef3f20e57f473720e3adca11a1130099e38",
+        "bytes": 3820,
+        "bytesWritten": 1068,
+        "kind": "transfer",
+        "feeSpeck": "547784041700596"
+      },
+      "frac": {
+        "read_time": 0.0027624999999999998,
+        "compute_time": 0.006609530543999999,
+        "block_usage": 0.0037519999999999997,
+        "bytes_written": 0.02136,
+        "bytes_churned": 0.00095352
+      },
+      "note": "Same transfer built in the fallible segment, as the preview and stagenet wallets do. Writes twice as much state."
+    },
+    {
+      "id": "batch_payout_40",
+      "label": "Batch payout, 40 recipients",
+      "group": "transfer",
+      "source": {
+        "net": "stagenet",
+        "height": 299800,
+        "hash": "8d14986079b092b9cff3534f6de2bca992d7576d886dd5d822d616f8ef01bd82",
+        "bytes": 4185,
+        "bytesWritten": 15216,
+        "kind": "transfer",
+        "feeSpeck": "7561954397901111"
+      },
+      "frac": {
+        "read_time": 0.0215475,
+        "compute_time": 0.059152716056000004,
+        "block_usage": 0.004117,
+        "bytes_written": 0.30432,
+        "bytes_churned": 0.012401120000000002
+      },
+      "recipients": 40,
+      "note": "4 inputs to 40 outputs in one transaction. Fee shown per transaction; divide by 40 per recipient."
+    },
+    {
+      "id": "dust_registration",
+      "label": "DUST registration",
+      "group": "setup",
+      "source": {
+        "net": "stagenet",
+        "height": 303178,
+        "hash": "3819ddae6aafd4d9d6fbd7a2fa35488b61357a80c37f61ca696beface4fe020d",
+        "bytes": 715,
+        "bytesWritten": 536,
+        "kind": "transfer",
+        "feeSpeck": "288939768331429"
+      },
+      "frac": {
+        "read_time": 0.0031450000000000002,
+        "compute_time": 0.0054441394580000005,
+        "block_usage": 0.0006469999999999999,
+        "bytes_written": 0.01072,
+        "bytes_churned": 0.00056008
+      },
+      "note": "One-time per NIGHT UTXO before it can generate DUST. 1 input, 1 output."
+    },
+    {
+      "id": "call_light",
+      "label": "Contract call, light",
+      "group": "contract",
+      "source": {
+        "net": "stagenet",
+        "height": 304596,
+        "hash": "79f90ec30e928db303f8b84d52991034e1c3024fd8caec785820309302764784",
+        "bytes": 7157,
+        "bytesWritten": 324,
+        "kind": "ContractCall",
+        "feeSpeck": "200279867627274"
+      },
+      "frac": {
+        "read_time": 0.0030345,
+        "compute_time": 0.006890310645999999,
+        "block_usage": 0.007089,
+        "bytes_written": 0.0064800000000000005,
+        "bytes_churned": 0.00050876
+      },
+      "note": "The cheapest call family on stagenet: one proof, 324 B of state written."
+    },
+    {
+      "id": "call_typical",
+      "label": "Contract call, typical",
+      "group": "contract",
+      "source": {
+        "net": "stagenet",
+        "height": 303262,
+        "hash": "950963b0a5b3b8567042675c8d18223d97c7190e3b9de6b63ecc275ee6ff1a33",
+        "bytes": 9645,
+        "bytesWritten": 696,
+        "kind": "ContractCall",
+        "feeSpeck": "400574592431893"
+      },
+      "frac": {
+        "read_time": 0.00493,
+        "compute_time": 0.011150224802499999,
+        "block_usage": 0.009577,
+        "bytes_written": 0.013919999999999998,
+        "bytes_churned": 0.0008302800000000001
+      },
+      "note": "Median-fee contract call across 314 third-party calls on stagenet."
+    },
+    {
+      "id": "call_mainnet",
+      "label": "Contract call, mainnet’s dominant contract",
+      "group": "contract",
+      "source": {
+        "net": "mainnet",
+        "height": 2423307,
+        "hash": "a394a602cfcb947765aa204f1a5fedda648fedd75e115c2637c07ac5b2975cef",
+        "bytes": 8275,
+        "bytesWritten": 320,
+        "kind": "ContractCall",
+        "feeSpeck": "1"
+      },
+      "frac": {
+        "read_time": 0.0025924999999999998,
+        "compute_time": 0.0049269217585000006,
+        "block_usage": 0.008208,
+        "bytes_written": 0.0064,
+        "bytes_churned": 0.00032866
+      },
+      "note": "111 of the last 112 fee-paying mainnet transactions were calls to this contract."
+    },
+    {
+      "id": "call_heavy_state",
+      "label": "Contract call, heavy state write",
+      "group": "contract",
+      "source": {
+        "net": "mainnet",
+        "height": 2424144,
+        "hash": "d9c8ef22548fd54e69228d4fed52b1b5ff64aaf72f7f28e618b1cb681712d985",
+        "bytes": 7727,
+        "bytesWritten": 5942,
+        "kind": "ContractCall",
+        "feeSpeck": "1"
+      },
+      "frac": {
+        "read_time": 0.0051255,
+        "compute_time": 0.0154924329525,
+        "block_usage": 0.00766,
+        "bytes_written": 0.11884,
+        "bytes_churned": 0.00057684
+      },
+      "note": "A mainnet call that writes 5.9 KB of contract state. Writes, not the proof, set its fee."
+    },
+    {
+      "id": "shielded_transfer_2",
+      "label": "Shielded transfer, 2 outputs",
+      "group": "transfer",
+      "source": {
+        "net": "stagenet",
+        "height": 245591,
+        "hash": "324c4fa933b9f5230e530668c6a83246f384dae1c357dd1aefac66368bdec7ac",
+        "bytes": 71582,
+        "bytesWritten": 2528,
+        "kind": "transfer",
+        "feeSpeck": "1633967711297970"
+      },
+      "frac": {
+        "read_time": 0.0086275,
+        "compute_time": 0.024027823842,
+        "block_usage": 0.071514,
+        "bytes_written": 0.05056,
+        "bytes_churned": 0.00301888
+      },
+      "note": "User-created shielded token, 2 outputs. Shielded proofs are ~70 KB."
+    },
+    {
+      "id": "deploy",
+      "label": "Contract deployment",
+      "group": "contract",
+      "source": {
+        "net": "stagenet",
+        "height": 300301,
+        "hash": "a874e3301983445870b6ee4e426c012cc26ac2d539b7309c17ca0ebad7c71598",
+        "bytes": 22526,
+        "bytesWritten": 24380,
+        "kind": "ContractDeploy",
+        "feeSpeck": "11329751628321248"
+      },
+      "frac": {
+        "read_time": 0.0018275,
+        "compute_time": 0.002722527288,
+        "block_usage": 0.022458,
+        "bytes_written": 0.4876,
+        "bytes_churned": 0.00030864
+      },
+      "note": "Median of 99 stagenet deployments. Writes roughly its own size into state."
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-# NIGHT Estimator (fee-estimator-3)
+# NIGHT Estimator
 
 How much NIGHT does a DApp have to hold to sponsor its users' DUST fees
 indefinitely? This is the third version of the estimator, and the first one

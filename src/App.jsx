@@ -179,6 +179,12 @@ export default function App() {
             <p className="small" style={{ marginTop: 6 }}>
               <code>overall_price</code> = {fmt(price, 2)}. Fees scale linearly with it.
             </p>
+            <p className="muted">
+              This is the price of one <em>full block</em>, not a minimum per transaction. A transaction pays for the fraction of a
+              block it consumes, so at the floor a call that uses 2% of a block costs about 0.2 DUST. State writes are priced at four
+              times the rate of the other dimensions, which is why a full block of writes costs about {fmt(FLOOR_PRICE_LEDGER9 * FACTORS.write * mult, 1)} DUST
+              and a contract deployment can exceed the block price while using only 59% of the write budget.
+            </p>
           </section>
 
           <section className="panel">

@@ -272,7 +272,8 @@ unreachable while a call needs a 6.5 KB proof.</p>
 <ul>
   <li><b>Unlimited external resources</b>, as posed: wallets, DUST, provers, bandwidth and submitters
   are not constraints here. Real single-client throughput measured far lower on preview &mdash;
-  1.9 tx/s at the mempool &mdash; and one wallet can stage exactly one unproven transaction at a time.</li>
+  1.9 tx/s at the mempool &mdash; and a wallet can have one transaction in flight per NIGHT UTXO it holds
+  (pending DUST is tracked per DUST UTXO; verified on stagenet with six UTXOs and six pre-proved transactions).</li>
   <li><b>Ledger limits only.</b> Excludes mempool ingest, peer networking, block propagation and
   consensus. Any of those could bind before the ledger does.</li>
   <li><b>Homogeneous blocks</b> &mdash; every transaction in the block is the same shape. A mixed block

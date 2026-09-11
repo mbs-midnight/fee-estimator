@@ -71,7 +71,7 @@ export function blocksToMultiply(factor, fullness) {
 
 // ---- budget -----------------------------------------------------------------------
 // rows: [{ frac, txPerDay }]
-export function budget({ rows, price, factors, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds }) {
+export function budget({ rows, price, factors, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds, utxosPerWallet = 1 }) {
   const priced = rows.map((r) => {
     const fee = feeDust(r.frac, price, factors);
     return { ...r, fee, dailyDust: fee * r.txPerDay };
@@ -96,12 +96,27 @@ export function budget({ rows, price, factors, bufferPct, nightUsd, peakTxPerHou
   const nightForPeak = peakDrain > 0 ? peakDrain / DUST_CAP_PER_NIGHT : 0; // extra NIGHT so the reservoir covers the peak
   const refillHours = peakDrain > 0 && dailyGeneration > 0 ? peakDrain / (dailyGeneration - dailyBurn) * 24 : 0;
 
-  // Concurrency: with the current wallet SDK a wallet has exactly one transaction
-  // in flight (building a transaction moves all of its DUST to pending), so the
-  // number of concurrent in-flight transactions is the number of wallets.
+  // Concurrency. The wallet SDK tracks pending DUST per DUST UTXO, not per
+  // wallet (dust-wallet CoreWallet.pendingDust; verified on stagenet 2026-09-11:
+  // a wallet with 6 DUST coins pre-proved 6 transactions, pending rising by one
+  // per build). Each NIGHT UTXO backs exactly one DUST UTXO, so the number of
+  // transactions a wallet can have in flight is its NIGHT UTXO count, provided
+  // each UTXO's DUST covers a fee. The balancer selects smallest-first and
+  // drains tiny coins into whatever it builds, so UTXOs should be equal-sized.
   const peakTxPerSecond = peakTxPerHour / 3600;
-  const walletsNeeded = Math.max(1, Math.ceil(peakTxPerSecond * inflightSeconds));
-  const nightPerWallet = walletsNeeded > 0 ? nightRecommended / walletsNeeded : 0;
+  const concurrent = Math.max(1, Math.ceil(peakTxPerSecond * inflightSeconds));
+  const utxos = Math.max(1, Math.floor(utxosPerWallet));
+  const walletsNeeded = Math.max(1, Math.ceil(concurrent / utxos));
+  const totalUtxos = walletsNeeded * utxos;
+  const nightPerWallet = nightRecommended / walletsNeeded;
+  const nightPerUtxo = nightRecommended / totalUtxos;
+  // A UTXO can pay a fee only from its own DUST: its reservoir must hold at
+  // least one fee, and it must regenerate a fee's worth between its turns.
+  const utxoReservoirDust = nightPerUtxo * DUST_CAP_PER_NIGHT;
+  const utxoTurnSeconds = peakTxPerSecond > 0 ? totalUtxos / peakTxPerSecond : Infinity;
+  const utxoRegenPerTurn = nightPerUtxo * DUST_PER_NIGHT_PER_DAY / 86400 * utxoTurnSeconds;
+  const utxoTooSmall = utxoReservoirDust < avgFee;
+  const utxoRegenShort = Number.isFinite(utxoRegenPerTurn) && utxoRegenPerTurn < avgFee;
 
   return {
     priced, txPerDay, dailyBurn, avgFee,
@@ -109,7 +124,8 @@ export function budget({ rows, price, factors, bufferPct, nightUsd, peakTxPerHou
     surplusPerDay: dailyGeneration - dailyBurn,
     runwayDaysNoGeneration: dailyBurn > 0 ? reservoirDust / dailyBurn : Infinity,
     peakBurnPerHour, generationPerHour, netDrainPerHour, burstHoursCovered, nightForPeak, refillHours,
-    walletsNeeded, nightPerWallet,
+    concurrent, utxos, walletsNeeded, totalUtxos, nightPerWallet, nightPerUtxo,
+    utxoReservoirDust, utxoTurnSeconds, utxoRegenPerTurn, utxoTooSmall, utxoRegenShort,
     usdRecommended: nightRecommended * nightUsd,
     usdForPeak: nightForPeak * nightUsd,
   };

@@ -75,6 +75,7 @@ export default function App() {
   const [peakTxPerHour, setPeakTxPerHour] = useState(300);
   const [peakHours, setPeakHours] = useState(2);
   const [inflightSeconds, setInflightSeconds] = useState(30);
+  const [utxosPerWallet, setUtxosPerWallet] = useState(10);
   const [anatomyId, setAnatomyId] = useState('call_typical');
 
   const fullnessBlocks = Math.max(fullMinutes, 0) * 60 / BLOCK_TIME_S;
@@ -87,8 +88,8 @@ export default function App() {
 
   const result = useMemo(() => budget({
     rows: rows.map((r) => ({ ...r, frac: byId[r.presetId].frac, recipients: byId[r.presetId].recipients })),
-    price, factors: FACTORS, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds,
-  }), [rows, price, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds]);
+    price, factors: FACTORS, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds, utxosPerWallet,
+  }), [rows, price, bufferPct, nightUsd, peakTxPerHour, peakHours, inflightSeconds, utxosPerWallet]);
 
   const anatomyPreset = byId[anatomyId];
   const anatomy = feeAnatomy(anatomyPreset.frac, price, FACTORS);
@@ -188,6 +189,7 @@ export default function App() {
               <Field label="Peak transactions per hour" help="The busiest hour you expect to sponsor."><Num value={peakTxPerHour} onChange={setPeakTxPerHour} step={50} /></Field>
               <Field label="Peak lasts (hours)"><Num value={peakHours} onChange={setPeakHours} step={0.5} /></Field>
               <Field label="Seconds per transaction in flight" help="Prove + submit + confirm. Unshielded transfers prove in 1–5 s on stagenet; contract calls take longer; a 70 KB shielded transfer took 84 s."><Num value={inflightSeconds} onChange={setInflightSeconds} step={5} /></Field>
+              <Field label="NIGHT UTXOs per wallet" help="Each NIGHT UTXO backs one DUST UTXO and can have one transaction in flight. Keep them equal-sized."><Num value={utxosPerWallet} onChange={setUtxosPerWallet} min={1} step={1} /></Field>
             </div>
           </section>
 
@@ -269,15 +271,22 @@ export default function App() {
           </section>
 
           <section className="panel" style={{ marginTop: 18 }}>
-            <h2>Wallets</h2>
+            <h2>Wallets &amp; UTXOs</h2>
             <div className="stats" style={{ marginTop: 0 }}>
-              <Stat k="Wallets for the peak" v={result.walletsNeeded.toLocaleString('en-US')} s={`${fmt(peakTxPerHour / 3600, 3)} tx/s × ${inflightSeconds} s in flight`} />
-              <Stat k="NIGHT per wallet" v={fInt(result.nightPerWallet)} s="split the holding evenly" />
+              <Stat k="Transactions in flight at peak" v={result.concurrent.toLocaleString('en-US')} s={`${fmt(peakTxPerHour / 3600, 3)} tx/s × ${inflightSeconds} s`} />
+              <Stat k="Wallets" v={result.walletsNeeded.toLocaleString('en-US')} s={`${result.totalUtxos.toLocaleString('en-US')} NIGHT UTXOs in total, ${result.utxos} per wallet`} />
+              <Stat k="NIGHT per UTXO" v={fInt(result.nightPerUtxo)} s={`${fInt(result.nightPerWallet)} per wallet`} />
+              <Stat k="DUST per UTXO when full" v={`${fmt(result.utxoReservoirDust)} DUST`} tone={result.utxoTooSmall ? 'warn' : 'ok'}
+                s={result.utxoTooSmall ? `below the ${fmt(result.avgFee, 3)} DUST average fee: UTXO too small` : `covers the ${fmt(result.avgFee, 3)} DUST average fee`} />
+              <Stat k="Regenerated between turns" v={Number.isFinite(result.utxoRegenPerTurn) ? `${fmt(result.utxoRegenPerTurn, 3)} DUST` : '—'} tone={result.utxoRegenShort ? 'warn' : 'ok'}
+                s={Number.isFinite(result.utxoTurnSeconds) ? `each UTXO is used every ${fHours(result.utxoTurnSeconds / 3600)} at peak` : 'no peak load'} />
             </div>
             <p className="muted" style={{ marginTop: 10 }}>
-              With the current wallet SDK, building a transaction moves <em>all</em> of a wallet&rsquo;s DUST to pending, so a wallet has
-              exactly one transaction in flight. Concurrency equals wallet count. Each wallet also needs one DUST registration
-              ({fmt(feeDust(byId.dust_registration.frac, price, FACTORS), 3)} DUST) before its NIGHT generates anything.
+              The wallet SDK tracks pending DUST per DUST UTXO, and every NIGHT UTXO backs exactly one DUST UTXO, so a wallet can have as
+              many transactions in flight as it has NIGHT UTXOs. Verified on stagenet: a wallet with 6 DUST coins pre-proved 6 transactions
+              before submitting any. Each UTXO pays fees only from its own DUST, so split the holding into equal UTXOs that each hold more
+              than one fee. The balancer picks the smallest coin first and drains tiny coins into whatever it builds, so avoid leaving crumbs.
+              Registering the wallet&rsquo;s DUST address is a one-time {fmt(feeDust(byId.dust_registration.frac, price, FACTORS), 3)} DUST transaction.
             </p>
           </section>
         </div>

@@ -78,9 +78,14 @@ by `1 + logit(u)/100`, `u` clamped to [0.01, 0.99]. Neutral at 50% full,
 - **Mainnet sponsorship is free today.** Every transaction costs 1 SPECK. The
   estimator prices at the ledger-9 floor of 10 because that is what stagenet
   charges now and what mainnet will charge after the upgrade.
-- **Concurrency is wallet count.** With the current wallet SDK, building a
-  transaction moves all of a wallet's DUST to pending, so a wallet has exactly
-  one transaction in flight. Peak tx/s × seconds in flight = wallets needed.
+- **Concurrency is UTXO count, not wallet count.** The wallet SDK tracks
+  pending DUST per DUST UTXO, and each NIGHT UTXO backs one DUST UTXO, so a
+  wallet can have as many transactions in flight as it has NIGHT UTXOs.
+  Verified on stagenet (2026-09-11): a wallet with 6 DUST coins pre-proved 6
+  transactions before submitting any, pending rising by one per build. Two
+  caveats the estimator surfaces: each UTXO pays fees only from its own DUST,
+  so it must hold more than one fee; and the balancer selects the smallest
+  coin first and drains crumbs into every build, so UTXOs should be equal-sized.
 
 ## Limits
 

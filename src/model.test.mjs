@@ -44,3 +44,16 @@ test('budget: 1,000 light calls a day at the ledger-9 floor', () => {
   assert.ok(Math.abs(b.nightEquilibrium - 200.3 / DUST_PER_NIGHT_PER_DAY) < 1);
   assert.equal(b.walletsNeeded, 1);
 });
+
+test('concurrency: wallets = ceil(in-flight / UTXOs per wallet)', () => {
+  const call = presets.presets.find((p) => p.id === 'call_light');
+  const base = { rows: [{ frac: call.frac, txPerDay: 10000 }], price: 10, factors: presets.feeFactors,
+    bufferPct: 0, nightUsd: 0.02, peakTxPerHour: 3600, peakHours: 1, inflightSeconds: 30 };
+  const one = budget({ ...base, utxosPerWallet: 1 });
+  const ten = budget({ ...base, utxosPerWallet: 10 });
+  assert.equal(one.concurrent, 30);
+  assert.equal(one.walletsNeeded, 30);
+  assert.equal(ten.walletsNeeded, 3);
+  assert.equal(ten.totalUtxos, 30);
+  assert.ok(Math.abs(ten.nightPerUtxo - one.nightPerWallet) < 1e-9);
+});
